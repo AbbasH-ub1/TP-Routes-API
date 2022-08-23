@@ -32,18 +32,18 @@ app.post("/journeytime", async (request, response)=>{
     const routeID = request.body.routeid;
     const sourceStation = request.body.source;
     const destinationStation = request.body.destination;
-    const db = await dbConnection();
     let stationsOnJourney = [];
     let journeyTime = 0;
     let reverseCondition = false;
-
+    const db = await dbConnection();
+    
+    
     const sqlQuery = 'select `routes`.`routes_name`, `stations`.`stations_name`, '+ 
-	'`routes_stations`.`sequence`, `routes_stations`.`traveltimefromprevious_station` '+
+	'`routes_stations`.`sequence`, `routes_stations`.`traveltimefromprevious_station`,`routes_stations`.`traveltimefromprevious_reverse` '+
     'from `routes` '+
     'join `routes_stations` on `routes`.`id`=`routes_stations`.`route_id` '+
     'join `stations` on `routes_stations`.`station_id`=`stations`.`id` '+
     'where `routes`.`routes_name`="' + routeID +'";';
-
 
     const results = await db.query(sqlQuery);
     const stationsOnRoute = results[0];
@@ -59,9 +59,15 @@ app.post("/journeytime", async (request, response)=>{
 
     for(let i = sourceIndex; i <= destinationIndex; i++){
         const stationName = stationsOnRoute[i].stations_name;
-        const timeToStation = stationsOnRoute[i].traveltimefromprevious_station;
+        const timeToStation = reverseCondition ? stationsOnRoute[i].traveltimefromprevious_reverse : stationsOnRoute[i].traveltimefromprevious_station;
 
-        i==sourceIndex ? journeyTime +=0 : journeyTime +=timeToStation;
+        if(reverseCondition){
+            i==destinationIndex ? journeyTime +=0 : journeyTime +=timeToStation;
+        }
+        else{
+            i==sourceIndex ? journeyTime +=0 : journeyTime +=timeToStation;
+        }
+
         
         stationsOnJourney.push({stationName,timeToStation});
     }
