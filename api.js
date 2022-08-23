@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
-const port = 3000;
 const mysql = require("mysql2/promise");
 require('dotenv').config();
+const port = process.env.PORT || 3000;
+
 
 const databaseOptions = {
     host: process.env.DB_HOST,
@@ -17,7 +18,6 @@ const dbConnection = async()=>{
 }
 
 app.use(express.json());
-app.use(express.urlencoded({extended:false}))
 
 app.listen(port, ()=>{
     console.log("The TP_Routes API is running.")
@@ -60,12 +60,9 @@ app.post("/journeytime", async (request, response)=>{
     for(let i = sourceIndex; i <= destinationIndex; i++){
         const stationName = stationsOnRoute[i].stations_name;
         const timeToStation = stationsOnRoute[i].traveltimefromprevious_station;
-        if(reverseCondition){
-            i==destinationIndex ? journeyTime +=0 : journeyTime +=timeToStation;
-        }
-        else{
-            i==sourceIndex ? journeyTime +=0 : journeyTime +=timeToStation;
-        }
+
+        i==sourceIndex ? journeyTime +=0 : journeyTime +=timeToStation;
+        
         stationsOnJourney.push({stationName,timeToStation});
     }
 
