@@ -1,6 +1,6 @@
 # TP-Routes-API
 
-api endpoint: GET [url]/journeytime
+api endpoint: POST [url]/journeytime
 
 json inputs: {
   "routeid", 
